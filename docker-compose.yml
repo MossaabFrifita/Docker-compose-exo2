@@ -1,0 +1,47 @@
+version: '2'
+services: 
+  web:
+    image: wordpress:latest
+    container_name: exo9-wp
+    depends_on: 
+      - db
+    environment: 
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: test_db
+      WORDPRESS_DB_USER: devuser
+      WORDPRESS_DB_PASSWORD: devpass
+    volumes: 
+      - ./data_wp:/var/www/html/
+    networks: 
+      - net-prive
+  db:
+    container_name: exo9-bd
+    image: mariadb:latest
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+    ports: 
+      - 6033:3306 
+    networks: 
+      - net-prive
+  apache:
+    image: tiqc/php-apache-mysqli
+    container_name: apache2
+    depends_on: 
+      - web
+    volumes: 
+      -  ./data_wp:/var/www/html/
+    ports: 
+      - 8000:80
+    environment:
+      - ALLOW_OVERRIDE=true
+    networks: 
+      - net-pub
+      - net-prive    
+networks: 
+  net-pub:
+  net-prive:     
+
